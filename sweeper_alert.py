@@ -34,7 +34,7 @@ def check_sweeper_alert(item_name, current_volume):
     
     # 10 分钟内涨 100% = 疑似扫货
     if increase_ratio >= SWEEPER_CONFIG["volume_increase_threshold"]:
-        alert_msg = f"🚨 【扫货报警】疑似有人扫货！\n\n饰品: {item_name}\n10分钟前成交量: {prev_volume}\n当前成交量: {current_volume}\n涨幅: +{increase_percent:.1f}%\n\n⚠️ 可能有人大量囤货，请关注价格变化！"
+        alert_msg = f'<font color="#8B0000">🚨 【扫货报警】疑似有人扫货！\n\n饰品: {item_name}\n10分钟前成交量: {prev_volume}\n当前成交量: {current_volume}\n涨幅: +{increase_percent:.1f}%\n\n⚠️ 可能有人大量囤货，请关注价格变化！</font>'
         return True, alert_msg
     
     return False, None
