@@ -99,6 +99,7 @@ def run_once():
     report_lines.append("")
     report_lines.append("\n\n".join(item_reports))
 
+    report_content = "\n".join(report_lines)
     send_wechat_notification("Steam监控采集报告", report_content)
     print(f"\n[OK] 已发送采集报告到微信")
     print(f"[完成] 本次共触发 {alert_count} 条报警")
