@@ -33,7 +33,7 @@ jobs:
 
       - name: 运行监控（单次采集）
         env:
-          SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+          SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_KEY }}
         run: python run_once.py
 
       - name: 保存数据库（到缓存）

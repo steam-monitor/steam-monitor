@@ -22,7 +22,16 @@
 - API: https://sct.ftqq.com/{SENDKEY}.send
 
 ## 云端部署
-- 平台：WorkBuddy自动化任务
+### GitHub Actions（主部署，推荐）
+- 仓库：https://github.com/steam-monitor/steam-monitor（私有）
+- 工作流：.github/workflows/monitor.yml
+- 运行频率：每小时整点自动触发
+- 状态：已激活并测试成功
+- Secret名称：SERVERCHAN_KEY
+- 数据持久化：actions/cache 缓存 volume_data.db
+- 注意：用户无VPN，需要奇游加速器才能访问GitHub
+
+### WorkBuddy自动化任务（备用）
 - 任务名称：Steam饰品监控
 - 运行频率：每小时
 - 状态：已激活
