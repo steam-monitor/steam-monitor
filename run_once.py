@@ -33,10 +33,15 @@ def run_once():
     results = monitor_items()
 
     alert_count = 0
+    report_lines = []
+    success_count = 0
+    skip_count = 0
 
     for item_name, data in results.items():
         if data is None:
             print(f"[跳过] {item_name} 数据获取失败")
+            skip_count += 1
+            report_lines.append(f"  {item_name}: 获取失败")
             continue
 
         volume = data["volume"]
@@ -45,6 +50,8 @@ def run_once():
         # 保存到数据库
         save_volume(item_name, volume, price)
         print(f"[保存] {item_name} -> 成交量: {volume}, 价格: {price}")
+        success_count += 1
+        report_lines.append(f"  {item_name}: 成交量 {volume}, 价格 {price}")
 
         # 扫货检测
         should_sweeper, sweeper_msg = check_sweeper_alert(item_name, volume)
@@ -64,7 +71,18 @@ def run_once():
             send_wechat_notification(title, alert_msg)
             alert_count += 1
 
-    print(f"\n[完成] 本次共触发 {alert_count} 条报警")
+    # 每次运行都发送采集报告
+    report_content = f"采集时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)\n\n"
+    report_content += f"采集结果: 成功 {success_count} 个, 失败 {skip_count} 个\n\n"
+    report_content += "饰品数据:\n" + "\n".join(report_lines)
+    if alert_count > 0:
+        report_content += f"\n\n本次触发 {alert_count} 条报警, 请查看其他通知了解详情"
+    else:
+        report_content += "\n\n一切正常, 无报警"
+
+    send_wechat_notification("Steam监控采集报告", report_content)
+    print(f"\n[OK] 已发送采集报告到微信")
+    print(f"[完成] 本次共触发 {alert_count} 条报警")
     print("=" * 60)
 
 
