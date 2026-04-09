@@ -33,25 +33,44 @@ def run_once():
     results = monitor_items()
 
     alert_count = 0
-    report_lines = []
+    item_reports = []
     success_count = 0
     skip_count = 0
+    item_index = 1
 
     for item_name, data in results.items():
         if data is None:
             print(f"[跳过] {item_name} 数据获取失败")
             skip_count += 1
-            report_lines.append(f"  {item_name}: 获取失败")
+            item_reports.append(f"{item_index}. {item_name}\n   状态: 获取失败")
+            item_index += 1
             continue
 
         volume = data["volume"]
         price = data["price"]
+        steamdt_volume = data.get("steamdt_volume")
+        steam_volume = data.get("steam_volume")
+        steamdt_price = data.get("steamdt_price")
+        steam_price = data.get("steam_price")
 
         # 保存到数据库
         save_volume(item_name, volume, price)
         print(f"[保存] {item_name} -> 成交量: {volume}, 价格: {price}")
         success_count += 1
-        report_lines.append(f"  {item_name}: 成交量 {volume}, 价格 {price}")
+
+        # 构建每个饰品的详细报告
+        lines = [f"{item_index}. {item_name}"]
+        if steamdt_volume is not None:
+            lines.append(f"   SteamDT成交: {steamdt_volume}")
+        if steam_volume is not None:
+            lines.append(f"   Steam成交: {steam_volume}")
+        lines.append(f"   今日推算成交: {volume}")
+        if steamdt_price is not None:
+            lines.append(f"   SteamDT价格: {steamdt_price}元")
+        if steam_price is not None:
+            lines.append(f"   Steam价格: {steam_price}元")
+        item_reports.append("\n".join(lines))
+        item_index += 1
 
         # 扫货检测
         should_sweeper, sweeper_msg = check_sweeper_alert(item_name, volume)
@@ -72,13 +91,13 @@ def run_once():
             alert_count += 1
 
     # 每次运行都发送采集报告
-    report_content = f"采集时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)\n\n"
-    report_content += f"采集结果: 成功 {success_count} 个, 失败 {skip_count} 个\n\n"
-    report_content += "饰品数据:\n" + "\n".join(report_lines)
+    report_lines = []
+    report_lines.append(f"时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)")
+    report_lines.append(f"成功: {success_count}  失败: {skip_count}")
     if alert_count > 0:
-        report_content += f"\n\n本次触发 {alert_count} 条报警, 请查看其他通知了解详情"
-    else:
-        report_content += "\n\n一切正常, 无报警"
+        report_lines.append(f"报警: {alert_count} 条 (请查看其他通知)")
+    report_lines.append("")
+    report_lines.append("\n\n".join(item_reports))
 
     send_wechat_notification("Steam监控采集报告", report_content)
     print(f"\n[OK] 已发送采集报告到微信")
