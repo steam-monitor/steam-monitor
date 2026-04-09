@@ -1,0 +1,26 @@
+name: Keep Alive
+
+on:
+  schedule:
+    # 每天北京时间 7:00 自动推送空 commit（UTC 23:00）
+    - cron: '0 23 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 推送空 commit 保持仓库活跃
+        run: |
+          git config user.name "keep-alive-bot"
+          git config user.email "keep-alive-bot@users.noreply.github.com"
+          git commit --allow-empty -m "keep alive [skip ci]"
+          git push
