@@ -6,7 +6,7 @@ import threading
 import requests
 
 # Server酱配置
-SERVERCHAN_SENDKEY = "SCT333503TicKpEmfPpjTQP1g630uctuou"
+SERVERCHAN_SENDKEY = "SCT333503Ty8CW1mvwhtW3ESp9vRv59kdJ"
 SERVERCHAN_API_URL = f"https://sctapi.ftqq.com/{SERVERCHAN_SENDKEY}.send"
 
 
