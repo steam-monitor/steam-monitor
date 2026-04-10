@@ -1,10 +1,10 @@
-name: Steam 饰品监控
+name: Steam Monitor
 
 on:
   schedule:
-    # 每10分钟检查一次，避免GitHub cron延迟
+    # Check every 10 minutes to avoid GitHub cron delay
     - cron: '*/10 * * * *'
-  workflow_dispatch:   # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   monitor:
@@ -12,18 +12,18 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: 拉取代码
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 设置 Python 环境
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 安装依赖
+      - name: Install dependencies
         run: pip install requests
 
-      - name: 恢复数据库（从缓存）
+      - name: Restore database from cache
         uses: actions/cache@v4
         with:
           path: volume_data.db
@@ -31,26 +31,25 @@ jobs:
           restore-keys: |
             volume-db-
 
-      - name: 检查是否需要运行（每小时只运行一次）
+      - name: Check if should run (once per hour)
         id: check
         run: python3 -c "
 from datetime import datetime, timezone
 now = datetime.now(timezone.utc)
 minute = now.minute
-# 只在每小时的第0-9分钟内运行（cron 0, 10, 20, 30, 40, 50 中的第一个）
 if minute < 10:
     print('should_run=true')
 else:
     print(f'should_run=false (minute={minute})')
 "
 
-      - name: 运行监控（单次采集）
+      - name: Run monitor
         if: steps.check.outputs.should_run == 'true'
         env:
           SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_KEY }}
         run: python run_once.py
 
-      - name: 保存数据库（到缓存）
+      - name: Save database to cache
         if: steps.check.outputs.should_run == 'true' && always()
         uses: actions/cache/save@v4
         with:
