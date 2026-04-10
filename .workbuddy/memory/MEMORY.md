@@ -25,8 +25,9 @@
 ### GitHub Actions（主部署）
 - 仓库：https://github.com/steam-monitor/steam-monitor（公开）
 - 工作流：.github/workflows/monitor.yml
-- 运行频率：每小时整点自动触发
+- 运行频率：cron每10分钟触发，代码检查间隔>=55分钟才实际运行
 - 状态：已激活
+- 2026-04-10：优化触发频率解决 cron 延迟问题
 - Secret名称：SERVERCHAN_KEY
 - 数据持久化：actions/cache 缓存 volume_data.db
 - keep-alive：.github/workflows/keep-alive.yml，每天7点推送空commit保持活跃
